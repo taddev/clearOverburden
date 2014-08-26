@@ -1,1 +1,88 @@
-print("Hello World!")
+quarryFrameHeight = 5
+quarryFrameWidth = 15
+quarryFrameDepth = 15
+fuelSlot = 16
+row = 0
+col = 0
+
+function findFuel()
+	for i = 1, 16 do
+		turtle.select(i)
+		if turtle.refuel(0) then
+			return i
+		end
+	end
+	return 0
+end
+
+function checkFuel()
+	if turtle.getFuelLevel() < 1 then
+		fillFuel()
+	end
+end
+
+function fillFuel()
+	turtle.select(fuelSlot)
+
+	if not turtle.refuel(0) then
+		print("Looking for fuel")
+		fuelSlot = findFuel()
+	end
+
+	if fuelSlot ~= 0 then
+		turtle.select(fuelSlot)
+		turtle.refuel(1)
+		print("Fueling Up")
+	else
+		print("No Fuel Found")
+	end
+end
+
+function driveFoward()
+	if not turtle.detect() then
+		checkFuel()
+		turtle.forward()
+		row = row+1
+	end
+end
+
+function moveForward(spaces)
+        local moves = 0
+        for i=1, spaces do
+            driveFoward()
+            moves = i
+        end
+        return moves
+end
+
+function moveRight()
+	turtle.turnRight()
+	driveFoward()
+	turtle.turnRight()
+end
+
+function moveLeft()
+	turtle.turnLeft()
+	driveFoward()
+	turtle.turnLeft()
+end
+
+---
+--- Main Function
+---
+while col <= quarryFrameWidth do
+	print("Clearing Column", col+1)
+	moveForward(quarryFrameDepth)
+
+	if col ~= quarryFrameWidth then
+		if col%2 == 0 then
+			moveRight()
+		else
+			moveLeft()
+		end
+	end
+
+	row = 0
+	col = col+1
+end
+
