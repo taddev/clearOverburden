@@ -1,9 +1,10 @@
-quarryFrameHeight = 5
+quarryFrameHeight = 4
 quarryFrameWidth = 15
 quarryFrameDepth = 15
 fuelSlot = 16
-row = 0
-col = 0
+Row = 0
+Col = 0
+Layer = 0
 
 function findFuel()
 	for i = 1, 16 do
@@ -38,12 +39,36 @@ function fillFuel()
 	end
 end
 
-function driveFoward()
-	if not turtle.detect() then
-		checkFuel()
-		turtle.forward()
-		row = row+1
+function checkInventory()
+	local usedSlots = 0
+	for i=1, 15 do
+		if turtle.getItemCount(i) > 0 then
+			usedSlots = usedSlots + 1
+		end
 	end
+
+	if usedSlots == 15 then
+		--- return to empty invetory
+		print("Inventory Full")
+	end
+end
+
+function driveFoward()
+	checkInventory()
+	checkFuel()
+	if turtle.detect() then
+		turtle.dig()
+	end
+	turtle.forward()
+end
+
+function driveUp()
+	checkInventory()
+	checkFuel()
+	if turtle.detectUp() then
+		turtle.digUp()
+	end
+	turtle.up()
 end
 
 function moveForward(spaces)
@@ -67,22 +92,35 @@ function moveLeft()
 	turtle.turnLeft()
 end
 
+function moveUp()
+	turtle.turnRight()
+	driveUp()
+end
+
+
+
 ---
 --- Main Function
 ---
-while col <= quarryFrameWidth do
-	print("Clearing Column", col+1)
-	moveForward(quarryFrameDepth)
+while Layer < quarryFrameHeight do
+	while Col <= quarryFrameWidth do
+		print("Clearing Column", Col)
+		moveForward(quarryFrameDepth)
 
-	if col ~= quarryFrameWidth then
-		if col%2 == 0 then
-			moveRight()
-		else
-			moveLeft()
+		if Col ~= quarryFrameWidth then
+			if Col%2 == 0 then
+				moveRight()
+			else
+				moveLeft()
+			end
 		end
+
+		Row = 0
+		Col = Col + 1
 	end
 
-	row = 0
-	col = col+1
+	moveUp()
+	Layer = Layer + 1
+	Col = 0
+	Row = 0
 end
-
