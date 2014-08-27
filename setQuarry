@@ -1,4 +1,4 @@
-quarryFrameHeight = 4
+quarryFrameHeight = 5
 quarryFrameWidth = 15
 quarryFrameDepth = 15
 fuelSlot = 16
@@ -56,7 +56,7 @@ end
 function driveFoward()
 	checkInventory()
 	checkFuel()
-	if turtle.detect() then
+	while turtle.detect() do
 		turtle.dig()
 	end
 	turtle.forward()
@@ -97,12 +97,7 @@ function moveUp()
 	driveUp()
 end
 
-
-
----
---- Main Function
----
-while Layer < quarryFrameHeight do
+function clearLayer()
 	while Col <= quarryFrameWidth do
 		print("Clearing Column", Col)
 		moveForward(quarryFrameDepth)
@@ -118,7 +113,13 @@ while Layer < quarryFrameHeight do
 		Row = 0
 		Col = Col + 1
 	end
+end
 
+---
+--- Main Function
+---
+while Layer < quarryFrameHeight do
+	clearLayer()
 	moveUp()
 	Layer = Layer + 1
 	Col = 0
