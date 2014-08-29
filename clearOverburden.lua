@@ -53,6 +53,7 @@ QuarryFrameDepth = 15
 
 FuelSlot = 16
 MaxDig = 25
+EnableChecks = true
 
 --
 -- Search through the turtles inventory looking for anything that
@@ -101,6 +102,10 @@ end
 -- then return to mining
 --
 function checkInventory()
+	if not EnableChecks then
+		return
+	end
+
 	local usedSlots = 0
 
 	for i=1, 15 do
@@ -116,10 +121,12 @@ function checkInventory()
 		local bottom = 0
 		local left = 0
 
+		EnableChecks = false -- turn off inventory check
 		bottom, left = findBottomLeft(layer)
 		returnToOrigin(layer, bottom, left)
 		emptyInventory()
 		returnToMine(layer, bottom, left)
+		EnableChecks = true
 	end
 end
 
@@ -211,6 +218,12 @@ end
 function reOrient(newOrientation)
 	local choice = 0
 
+	-- check for a valid request
+	if (newOrientation > 3) or (newOrientation < 0) then
+		print("Error wrong orientation requested")
+		os.exit()
+	end
+
 	choice = Position.Orientation - newOrientation
 
 	-- handle negative values my making them negativly positive :P
@@ -235,13 +248,14 @@ end
 
 --
 -- Move forward a specific number of spaces
--- Return the number of spaces moved for verification
 --
 function moveForward(requiredMoves)
-        local moves = 0
-        for i=1, requiredMoves do
+        local moves = requiredMoves
+
+        while moves > 0 do
             driveFoward()
             Position.Row = Position.Row + 1
+            moves = moves - 1
         end
 end
 
@@ -376,16 +390,21 @@ function returnToOrigin(layer, bottom,left)
 	end
 
 	-- 1:
+	print("Turning to the LEFT")
 	reOrient(Direction.LEFT)
 
 	-- 2:
+	print("Moving forward ", left, " spaces")
 	moveForward(left)
 
 	-- 3:
+	print("Turninig left")
 	turnLeft()
+	print("Moving forward ", bottom, " spaces")
 	moveForward(bottom)
 
 	-- 4a:
+	print("Dropping down ", Position.Layer, " layers")
 	while Position.Layer > 0 do
 		driveDown()
 		Position.Layer = Position.Layer - 1
